@@ -1,12 +1,19 @@
+from dataclasses import dataclass
 import enum
 from typing import Counter
 from utils.load_file import File
 
+@dataclass
+class Vector:
+    add_row: int
+    add_column: int
+    symbol: str
+
 class Direction(enum.Enum):
-    UP = (-1, 0, '^')
-    RIGHT = (0, 1, '>')
-    DOWN = (1, 0, 'v')
-    LEFT = (0, -1, '<')
+    UP = Vector(-1, 0, '^')
+    RIGHT = Vector(0, 1, '>')
+    DOWN = Vector(1, 0, 'v')
+    LEFT = Vector(0, -1, '<')
 
 def direction_on_right(direction: Direction) -> Direction:
     match direction:
@@ -18,6 +25,9 @@ def direction_on_right(direction: Direction) -> Direction:
             return Direction.LEFT
         case Direction.LEFT:
             return Direction.UP
+        
+def next_position(row: int, column: int, direction: Direction) -> tuple[int, int]:
+    return row + direction.value.add_row, column + direction.value.add_column
         
 def is_in_bounds(row: int, column: int, height: int, width: int) -> bool:
     return row >= 0 and row < height and column >= 0 and column < width
@@ -41,21 +51,26 @@ def main() -> None:
     for index_x in range(height):
         for index_y in range(width):
             if matrix[index_x][index_y] == '.':
-                row, column = start_point
                 direction: Direction = Direction.UP
                 visited_places: set[tuple[int, int, Direction]] = set()
                 matrix[index_x][index_y] = '#'
-                while is_in_bounds(row + direction.value[0], column + direction.value[1], height, width):
+                
+                row, column = start_point
+                next_row, next_column = next_position(row, column, direction)
+                while is_in_bounds(next_row, next_column, height, width):
                     if (row, column, direction) in visited_places:
                         guards_count += 1
                         break
                     visited_places.add((row, column, direction))
 
-                    if matrix[row + direction.value[0]][column + direction.value[1]] == '#':
+                    if matrix[next_row][next_column] == '#':
                         direction = direction_on_right(direction)
                     else:
-                        row += direction.value[0]
-                        column += direction.value[1]
+                        row = next_row
+                        column = next_column
+                    
+                    next_row, next_column = next_position(row, column, direction)
+                
                 matrix[index_x][index_y] = '.'
     print(guards_count)
 

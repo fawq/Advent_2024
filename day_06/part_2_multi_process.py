@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import enum
+import multiprocessing
 from pathlib import Path
 from typing import Self
 from utils.load_file import File
@@ -86,10 +87,17 @@ def is_in_loop(matrix: Matrix, start_position: Position, hashtag_position: Posit
 
     return False
 
+def check_and_count(args):
+    matrix, start_position, dot_positions = args
+    count = 0
+    for dot_position in dot_positions:
+        if is_in_loop(matrix, start_position, dot_position):
+            count += 1
+    return count
+
 def solution(file_path: Path) -> int:
     matrix: Matrix = Matrix()
     start_position: Position = Position(-1, -1)
-    guards_count: int = 0
 
     for row, line in enumerate(File(file_path).read()):
         line = line.strip()
@@ -100,11 +108,15 @@ def solution(file_path: Path) -> int:
             start_position = Position(row, line.index('^'))        
         matrix.add_row(list(line))
 
-    for dot_position in matrix.get_position_of_dots():
-        if is_in_loop(matrix, start_position, dot_position):
-            guards_count += 1
+    dot_positions = matrix.get_position_of_dots()
+    num_processes = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(num_processes)
+    
+    dot_positions_chunks = [dot_positions[i::num_processes] for i in range(num_processes)]
+    args_list = [(matrix, start_position, chunk) for chunk in dot_positions_chunks]
+    results = pool.map(check_and_count, args_list)
 
-    return guards_count
+    return sum(results)
 
 def main() -> None:
     assert solution("day_06/data_test.txt") == 6

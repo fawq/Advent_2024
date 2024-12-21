@@ -38,6 +38,7 @@ class Element(Enum):
     TRACK = "."
     START = "S"
     END = "E"
+    PLAYER = "P"
 
     def is_valid(self) -> bool:
         return self in [self.TRACK, self.START, self.END]
@@ -69,6 +70,11 @@ class Matrix:
 
     def __repr__(self) -> str:
         return self.__str__()
+    
+    def __add__(self, other: Position) -> Self:
+        new_matrix = deepcopy(self)
+        new_matrix.set_element(other, Element.PLAYER)
+        return new_matrix
     
     def is_in_bounds(self, position: Position) -> bool:
         return 0 <= position.row < self.height() and 0 <= position.column < self.width()
@@ -161,7 +167,7 @@ def solution(file_path: Path, min_gain: int = 100) -> int:
             possible_cost = possible_position_cost.distance
             taxicab_distance = current_position.vector_to(possible_position).get_taxicab_distance()
 
-            if 1 <= taxicab_distance <= 2:
+            if taxicab_distance == 2:
                 if abs(current_cost - possible_cost) - taxicab_distance >= min_gain:
                     cheats += 1
         all_position_costs.remove(position_cost)

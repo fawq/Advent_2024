@@ -45,13 +45,15 @@ class Position:
 class BasicKeyboard(ABC):
     keyboard: list[list[str]] = field(default_factory=list)
 
-    @abstractmethod
     def is_in_bounds(self, position: Position) -> bool:
-        ...
+        keyboard_rows = len(self.keyboard)
+        keyboard_columns = len(self.keyboard[0])
+        forbidden_position = self.get_character_position('F')
 
-    @abstractmethod
+        return 0 <= position.row < keyboard_rows and 0 <= position.column < keyboard_columns and position != forbidden_position
+
     def get_element(self, position: Position) -> str:
-        ...
+        return self.keyboard[position.row][position.column]
 
     @abstractmethod
     def get_character_position(self, character: str) -> Position:
@@ -61,12 +63,6 @@ class BasicKeyboard(ABC):
 class NumericKeyboard(BasicKeyboard):
     keyboard:list[list[str]] = field(
         default_factory=lambda: [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3'], ['F', '0', 'A']])
-
-    def is_in_bounds(self, position: Position) -> bool:
-        return 0 <= position.row < 4 and 0 <= position.column < 3 and position != Position(3, 0)
-
-    def get_element(self, position: Position) -> str:
-        return self.keyboard[position.row][position.column]
     
     def get_character_position(self, character: str) -> Position:
         match character:
@@ -100,12 +96,6 @@ class NumericKeyboard(BasicKeyboard):
 @dataclass(frozen=True)
 class DigitalKeyboard(BasicKeyboard):
     keyboard: list[list[str]] = field(default_factory=lambda: [['F', '^', 'A'], ['<', 'v', '>']])
-
-    def is_in_bounds(self, position: Position) -> bool:
-        return 0 <= position.row < 2 and 0 <= position.column < 3 and position != Position(0, 0)
-    
-    def get_element(self, position: Position) -> str:
-        return self.keyboard[position.row][position.column]
     
     def get_character_position(self, character: str) -> Position:
         match character:

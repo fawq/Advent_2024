@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cache
@@ -40,10 +41,26 @@ class Position:
     def vector_to(self, position: Self) -> Vector:
         return Vector(position.row - self.row, position.column - self.column)
 
-@dataclass(frozen=True)
-class NumericKeyboard:
-    keyboard: list[list[str]] = field(
-        default_factory=lambda: [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3'], ['F', '0', 'A']])
+@dataclass
+class BasicKeyboard(ABC):
+    keyboard: list[list[str]] = field(default_factory=list)
+
+    @abstractmethod
+    def is_in_bounds(self, position: Position) -> bool:
+        ...
+
+    @abstractmethod
+    def get_element(self, position: Position) -> str:
+        ...
+
+    @abstractmethod
+    def get_character_position(self, character: str) -> Position:
+        ...
+
+@dataclass
+class NumericKeyboard(BasicKeyboard):
+    def __post_init__(self):
+        self.keyboard: list[list[str]] = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3'], ['F', '0', 'A']]
 
     def is_in_bounds(self, position: Position) -> bool:
         return 0 <= position.row < 4 and 0 <= position.column < 3 and position != Position(3, 0)
@@ -78,9 +95,10 @@ class NumericKeyboard:
             case 'A':
                 return Position(3, 2)
             
-@dataclass(frozen=True)
-class DigitalKeyboard:
-    keyboard: list[list[str]] = field(default_factory=lambda: [['F', '^', 'A'], ['<', 'v', '>']])
+@dataclass
+class DigitalKeyboard(BasicKeyboard):
+    def __post_init__(self):
+        self.keyboard: list[list[str]] = [['F', '^', 'A'], ['<', 'v', '>']]
 
     def is_in_bounds(self, position: Position) -> bool:
         return 0 <= position.row < 2 and 0 <= position.column < 3 and position != Position(0, 0)

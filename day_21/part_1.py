@@ -36,7 +36,7 @@ class Position:
     column: int
 
     def next_position(self, direction: Direction) -> Self:
-        return Position(self.row + direction.value.add_row, self.column + direction.value.add_column)
+        return self.__class__(self.row + direction.value.add_row, self.column + direction.value.add_column)
 
     def vector_to(self, position: Self) -> Vector:
         return Vector(position.row - self.row, position.column - self.column)
@@ -59,7 +59,7 @@ class BasicKeyboard(ABC):
 
 @dataclass
 class NumericKeyboard(BasicKeyboard):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.keyboard: list[list[str]] = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3'], ['F', '0', 'A']]
 
     def is_in_bounds(self, position: Position) -> bool:
@@ -94,10 +94,12 @@ class NumericKeyboard(BasicKeyboard):
                 return Position(3, 1)
             case 'A':
                 return Position(3, 2)
+            case _:
+                raise ValueError
             
 @dataclass
 class DigitalKeyboard(BasicKeyboard):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.keyboard: list[list[str]] = [['F', '^', 'A'], ['<', 'v', '>']]
 
     def is_in_bounds(self, position: Position) -> bool:
@@ -120,6 +122,8 @@ class DigitalKeyboard(BasicKeyboard):
                 return Position(1, 1)
             case '>':
                 return Position(1, 2)
+            case _:
+                raise ValueError
             
 class Keyboard(Enum):
     NUMERIC = NumericKeyboard()

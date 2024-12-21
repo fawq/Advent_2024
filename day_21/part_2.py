@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cache
@@ -35,14 +36,30 @@ class Position:
     column: int
 
     def next_position(self, direction: Direction) -> Self:
-        return Position(self.row + direction.value.add_row, self.column + direction.value.add_column)
+        return self.__class__(self.row + direction.value.add_row, self.column + direction.value.add_column)
 
     def vector_to(self, position: Self) -> Vector:
         return Vector(position.row - self.row, position.column - self.column)
 
 @dataclass(frozen=True)
-class NumericKeyboard:
-    keyboard: list[list[str]] = field(
+class BasicKeyboard(ABC):
+    keyboard: list[list[str]] = field(default_factory=list)
+
+    @abstractmethod
+    def is_in_bounds(self, position: Position) -> bool:
+        ...
+
+    @abstractmethod
+    def get_element(self, position: Position) -> str:
+        ...
+
+    @abstractmethod
+    def get_character_position(self, character: str) -> Position:
+        ...
+
+@dataclass(frozen=True)
+class NumericKeyboard(BasicKeyboard):
+    keyboard:list[list[str]] = field(
         default_factory=lambda: [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3'], ['F', '0', 'A']])
 
     def is_in_bounds(self, position: Position) -> bool:
@@ -77,9 +94,11 @@ class NumericKeyboard:
                 return Position(3, 1)
             case 'A':
                 return Position(3, 2)
+            case _:
+                raise ValueError
             
 @dataclass(frozen=True)
-class DigitalKeyboard:
+class DigitalKeyboard(BasicKeyboard):
     keyboard: list[list[str]] = field(default_factory=lambda: [['F', '^', 'A'], ['<', 'v', '>']])
 
     def is_in_bounds(self, position: Position) -> bool:
@@ -102,6 +121,8 @@ class DigitalKeyboard:
                 return Position(1, 1)
             case '>':
                 return Position(1, 2)
+            case _:
+                raise ValueError
             
 class Keyboard(Enum):
     NUMERIC = NumericKeyboard()

@@ -1,6 +1,6 @@
-from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
+from itertools import combinations
 from pathlib import Path
 from queue import Queue
 
@@ -65,26 +65,26 @@ def solution(file_path: Path, max_taxicab_distance: int, min_gain: int) -> int:
             break
 
         if "S" in line:
-            start_position = Position(matrix.height(), line.index("S"))
+            start_position = Position(matrix.get_height(), line.index("S"))
         if "E" in line:
-            end_position = Position(matrix.height(), line.index("E"))
+            end_position = Position(matrix.get_height(), line.index("E"))
 
         matrix.add_row(list(map(Element, line)))
 
     all_position_costs = bfs_with_visited_positions(matrix, start_position, end_position)
-    all_position_costs_dict: dict[Position, int] = {position_cost.position: position_cost.distance for position_cost in all_position_costs}
     cheats: int = 0
-    for position_cost in all_position_costs:
-        current_position = position_cost.position
-        current_cost = position_cost.distance
+    for position_cost_1, position_cost_2 in combinations(all_position_costs, 2):
+        first_position = position_cost_1.position
+        first_position_distance = position_cost_1.distance
 
-        for possible_position, possible_cost in all_position_costs_dict.items():
-            taxicab_distance = current_position.vector_to(possible_position).get_taxicab_distance()
+        second_position = position_cost_2.position
+        second_position_distance = position_cost_2.distance
 
-            if 2 <= taxicab_distance <= max_taxicab_distance:
-                if abs(current_cost - possible_cost) - taxicab_distance >= min_gain:
-                    cheats += 1
-        del all_position_costs_dict[current_position]
+        taxicab_distance = first_position.vector_to(second_position).get_taxicab_distance()
+
+        if (2 <= taxicab_distance <= max_taxicab_distance and 
+            abs(first_position_distance - second_position_distance) - taxicab_distance >= min_gain):
+            cheats += 1
     return cheats
 
 def part1_solution(file_path: Path, min_gain: int = 100) -> int:

@@ -7,7 +7,7 @@ if not __package__:
     package_source_path = os.path.dirname(os.path.dirname(__file__))
     sys.path.insert(0, package_source_path)
 
-from advent import day_24
+from advent import day_25
 
 if __name__ == "__main__":
-    day_24.main()
+    day_25.main()

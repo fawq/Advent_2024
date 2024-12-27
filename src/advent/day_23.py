@@ -58,6 +58,6 @@ def part2_solution(file_path: Path) -> int:
 
 def main() -> None:
     assert part1_solution("src/advent/day_23/data_test.txt") == 7
-    print(part1_solution("src/advent/day_23/data.txt"))
+    print(f"Part 1: {part1_solution("src/advent/day_23/data.txt")}")
     assert part2_solution("src/advent/day_23/data_test.txt") == "co,de,ka,ta"
-    print(part2_solution("src/advent/day_23/data.txt"))
+    print(f"Part 2: {part2_solution("src/advent/day_23/data.txt")}")

@@ -124,6 +124,5 @@ def part2_solution(file_path: Path) -> int:
 
 def main() -> None:
     assert part1_solution("src/advent/day_24/data_test.txt") == 2024
-    print(part1_solution("src/advent/day_24/data.txt"))
-    #assert part2_solution("src/advent/day_24/data_test_2.txt") == "z00,z01,z02,z05"
-    print(part2_solution("src/advent/day_24/data.txt"))
+    print(f"Part 1: {part1_solution("src/advent/day_24/data.txt")}")
+    print(f"Part 2: {part2_solution("src/advent/day_24/data.txt")}")
